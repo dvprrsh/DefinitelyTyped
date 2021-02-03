@@ -1,15 +1,21 @@
 /// <reference types="node" />
 
+import { DocScanService } from './docScanService';
+import { SessionSpecification } from './docScanService/session/create';
+
 declare namespace Clients {
     class DocScanClient {
-        docScanService: any;
-        constructor(clientId: string, privateKey: string | Buffer);
-        createSession(sessionSpec: any): Promise<any>;
-        getSession(sessionId: string): Promise<any>;
-        deleteSession(sessionId: string): Promise<void>;
-        getMediaContent(sessionId: string, mediaId: string): Promise<any>;
-        deleteMediaContent(sessionId: string, mediaId: string): Promise<void>;
-        getSupportedDocuments(): Promise<any>;
+        docScanService: DocScanService;
+        constructor(sdkId: string, privateKey: string | Buffer);
+        createSession(sessionSpec: SessionSpecification): Promise<ReturnType<DocScanService['createSession']>>;
+        getSession(sessionId: string): Promise<ReturnType<DocScanService['getSession']>>;
+        deleteSession(sessionId: string): Promise<ReturnType<DocScanService['deleteSession']>>;
+        getMediaContent(sessionId: string, mediaId: string): Promise<ReturnType<DocScanService['getMediaContent']>>;
+        deleteMediaContent(
+            sessionId: string,
+            mediaId: string,
+        ): Promise<ReturnType<DocScanService['deleteMediaContent']>>;
+        getSupportedDocuments(): Promise<ReturnType<DocScanService['getSupportedDocuments']>>;
     }
 }
 
