@@ -1,6 +1,6 @@
 import { YotiDate } from '../../dataType';
 
-declare namespace YotiRetrieve {
+declare namespace Retrieve {
     class GeneratedMedia {
         id: string;
         type: string;
@@ -34,7 +34,7 @@ declare namespace YotiRetrieve {
         constructor(breakdown: { sub_check: string; result: string; details: object[] });
         getSubCheck(): string;
         getResult(): string;
-        getDetails(): DetailsResponse[];
+        getDetails(): DetailsResponse[] | undefined;
     }
 
     class ReportResponse {
@@ -44,8 +44,8 @@ declare namespace YotiRetrieve {
             recommendation: { value: string; reason: string; recovery_suggestion: string };
             breakdown: any[];
         });
-        getRecommendation(): RecommendationResponse;
-        getBreakdown(): BreakdownResponse[];
+        getRecommendation(): RecommendationResponse | undefined;
+        getBreakdown(): BreakdownResponse[] | undefined;
     }
 
     class CheckResponse {
@@ -73,8 +73,8 @@ declare namespace YotiRetrieve {
         getType(): string;
         getId(): string;
         getState(): string;
-        getResourcesUsed(): string[];
-        getGeneratedMedia(): GeneratedMedia[];
+        getResourcesUsed(): string[] | undefined;
+        getGeneratedMedia(): GeneratedMedia[] | undefined;
         getReport(): ReportResponse;
         getCreated(): YotiDate;
         getLastUpdated(): YotiDate;
@@ -126,8 +126,8 @@ declare namespace YotiRetrieve {
         getType(): string;
         getId(): string;
         getState(): string;
-        getCreated(): YotiDate;
-        getLastUpdated(): YotiDate;
+        getCreated(): YotiDate | undefined;
+        getLastUpdated(): YotiDate | undefined;
         getGeneratedChecks(): GeneratedCheckResponse[];
         /**
          * @deprecated this method is now implemented on subclasses.
@@ -184,7 +184,7 @@ declare namespace YotiRetrieve {
             frames: any[];
         });
         getCaptureMethod(): string;
-        getMedia(): MediaResponse;
+        getMedia(): MediaResponse | undefined;
         getFrames(): FrameResponse[];
     }
 
@@ -242,8 +242,8 @@ declare namespace YotiRetrieve {
         getDocumentType(): string;
         getIssuingCountry(): string;
         getPages(): PageResponse[];
-        getDocumentFields(): DocumentFieldsResponse;
-        getDocumentFile(): FileResponse;
+        getDocumentFields(): DocumentFieldsResponse | undefined;
+        getDocumentFile(): FileResponse | undefined;
     }
 
     class LivenessResourceResponse extends ResourceResponse {
@@ -260,7 +260,7 @@ declare namespace YotiRetrieve {
         faceMap?: FaceMapResponse;
         frames: FrameResponse[];
         constructor(resource: { facemap?: any; frames?: any; liveness_type?: any; id?: string; tasks?: any[] });
-        getFaceMap(): FaceMapResponse;
+        getFaceMap(): FaceMapResponse | undefined;
         getFrames(): FrameResponse[];
     }
 
@@ -300,7 +300,7 @@ declare namespace YotiRetrieve {
         state: string;
         clientSessionToken: string;
         checks: CheckResponse[];
-        resources?: any;
+        resources?: ResourceContainer;
         biometricConsent?: YotiDate;
         constructor(response: {
             client_session_token_ttl: number;
@@ -334,4 +334,4 @@ declare namespace YotiRetrieve {
     }
 }
 
-export = YotiRetrieve;
+export = Retrieve;

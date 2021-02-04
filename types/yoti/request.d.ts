@@ -1,3 +1,5 @@
+import DataType = require('./dataType');
+
 declare namespace YotiRequest {
     /**
      * Build a query string.
@@ -32,7 +34,7 @@ declare namespace YotiRequest {
             statusCode: number,
             receipt?: object | null,
             body?: Buffer | string | null,
-            headers?: Array<string> | null,
+            headers?: string[] | null,
         );
         /**
          * @returns Receipt if available.
@@ -122,3 +124,5 @@ declare namespace YotiRequest {
         build(): YotiRequest;
     }
 }
+
+export = YotiRequest;

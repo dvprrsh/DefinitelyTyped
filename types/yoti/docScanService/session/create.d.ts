@@ -1,4 +1,4 @@
-declare namespace DocScanCreate {
+declare namespace Create {
     /**
      * Configures call-back Notifications to some backend endpoint provided
      * by the Relying Business.
@@ -137,7 +137,6 @@ declare namespace DocScanCreate {
     class RequiredDocument {
         type: string;
         constructor(type: string);
-
         toJSON(): {
             type: string;
         };
@@ -283,7 +282,7 @@ declare namespace DocScanCreate {
     /**
      * The configuration applied when creating a FaceMatchCheck
      *
-     * @class RequestedFaceMatchConfig
+     *  RequestedFaceMatchConfig
      */
     class RequestedFaceMatchConfig {
         manualCheck: string;
@@ -327,12 +326,9 @@ declare namespace DocScanCreate {
     }
 
     /**
-     * @class RequestedIdDocumentComparisonCheck
+     *  RequestedIdDocumentComparisonCheck
      */
     class RequestedIdDocumentComparisonCheck extends RequestedCheck {
-        /**
-         * @param {RequestedIdDocumentComparisonConfig} config
-         */
         constructor(config: RequestedIdDocumentComparisonConfig);
     }
 
@@ -346,7 +342,7 @@ declare namespace DocScanCreate {
     /**
      * The configuration applied when creating a LivenessCheck
      *
-     * @class RequestedLivenessConfig
+     *  RequestedLivenessConfig
      */
     class RequestedLivenessConfig {
         maxRetries: number;
@@ -437,74 +433,414 @@ declare namespace DocScanCreate {
         withManualCheckAlways(): this;
     }
 
-    class DocumentRestrictionBuilder extends BaseBuilder {
-        withCountries(countries: string[]): this;
-        withDocumentType(documentTypes: string[]): this;
-    }
-
-    class DocumentRestrictionsFilterBuilder extends BaseBuilder {
-        withDocumentRestriction(restriction: DocumentRestrictionBuilder): this;
-        forWhitelist(): this;
-        forBlacklist(): this;
-    }
-
-    class OrthogonalRestrictionsFilterBuilder extends BaseBuilder {
-        withWhitelistedCountries(countries: string[]): this;
-        withBlacklistedCountries(countries: string[]): this;
-        withWhitelistedDocumentTypes(documentTypes: string[]): this;
-        withBlacklistedDocumentTypes(documentTypes: string[]): this;
-    }
-
-    class RequiredIdDocumentBuilder extends BaseBuilder {
-        withFilter(filter: DocumentRestrictionsFilterBuilder | OrthogonalRestrictionsFilterBuilder): this;
-    }
-
-    class ProofOfAddressObjectiveBuilder extends BaseBuilder {}
-
-    class RequiredSupplementaryDocumentBuilder extends BaseBuilder {
-        withObjective(objective: ProofOfAddressObjectiveBuilder): this;
-    }
-
     class RequiredIdDocumentComparisonCheckBuilder extends BaseBuilder {}
 
-    class RequestedTextExtractionTaskBuilder extends ManualCheckBuilder {
+    class DocumentRestriction {
+        countryCodes?: string[];
+        documentTypes?: string[];
+        constructor(countryCodes: string[], documentTypes: string[]);
+        toJSON(): {
+            document_types: string[];
+            country_codes: string[];
+        };
+    }
+
+    class DocumentRestrictionBuilder {
+        documentTypes: string[];
+        countryCodes: string[];
+        withDocumentTypes(documentTypes: string[]): this;
+        withCountries(countryCodes: string[]): this;
+        build(): DocumentRestriction;
+    }
+
+    class DocumentFilter {
+        type: string;
+        constructor(type: string);
+        toJSON(): {
+            type: string;
+        };
+    }
+
+    class DocumentRestrictionsFilter extends DocumentFilter {
+        inclusion: string;
+        documents: DocumentRestriction[];
+        constructor(inclusion: string, documents: DocumentRestriction[]);
+        toJSON(): {
+            type: string;
+            inclusion: string;
+            documents: DocumentRestriction[];
+        };
+    }
+
+    class DocumentRestrictionsFilterBuilder {
+        documents: DocumentRestriction[];
+        inclusion: string;
+        constructor();
+        forWhitelist(): this;
+        forBlacklist(): this;
+        withDocumentRestriction(documentRestriction: DocumentRestriction): this;
+        build(): DocumentRestrictionsFilter;
+    }
+
+    class CountryRestriction {
+        inclusion: string;
+        countryCodes: string[];
+        constructor(inclusion: string, countryCodes: string[]);
+        toJSON(): {
+            inclusion: string;
+            country_codes: string[];
+        };
+    }
+
+    class TypeRestriction {
+        inclusion: string;
+        documentTypes: string[];
+        constructor(inclusion: string, documentTypes: string[]);
+        toJSON(): {
+            inclusion: string;
+            document_types: string[];
+        };
+    }
+
+    class OrthogonalRestrictionsFilter extends DocumentFilter {
+        countryRestriction?: CountryRestriction;
+        typeRestriction?: TypeRestriction;
+        constructor(countryRestriction: CountryRestriction, typeRestriction: TypeRestriction);
+        toJSON(): {
+            type: string;
+            country_restriction?: CountryRestriction;
+            type_restriction?: TypeRestriction;
+        };
+    }
+
+    class OrthogonalRestrictionsFilterBuilder {
+        countryRestriction: CountryRestriction;
+        typeRestriction: TypeRestriction;
+        withWhitelistedCountries(countryCodes: string[]): this;
+        withBlacklistedCountries(countryCodes: string[]): this;
+        withWhitelistedDocumentTypes(documentTypes: string[]): this;
+        withBlacklistedDocumentTypes(documentTypes: string[]): this;
+        build(): OrthogonalRestrictionsFilter;
+    }
+
+    class RequiredIdDocument extends RequiredDocument {
+        filter?: DocumentFilter;
+        constructor(filter?: DocumentFilter);
+        toJSON(): {
+            type: string;
+            filter?: DocumentFilter;
+        };
+    }
+
+    class RequiredIdDocumentBuilder {
+        filter: DocumentFilter;
+        withFilter(filter: DocumentFilter): this;
+        build(): RequiredIdDocument;
+    }
+
+    class Objective {
+        type: string;
+        constructor(type: string);
+        toJSON(): {
+            type: string;
+        };
+    }
+
+    class RequiredSupplementaryDocument extends RequiredDocument {
+        objective: Objective;
+        documentTypes?: string[];
+        countryCodes?: string[];
+        constructor(objective: Objective, documentTypes: string[], countryCodes: string[]);
+        toJSON(): {
+            type: string;
+            objective: Objective;
+            document_types?: string[];
+            country_codes?: string[];
+        };
+    }
+
+    class RequiredSupplementaryDocumentBuilder {
+        countryCodes: string[];
+        documentTypes: string[];
+        objective: Objective;
+        withCountryCodes(countryCodes: string[]): this;
+        withDocumentTypes(documentTypes: string[]): this;
+        withObjective(objective: Objective): this;
+        build(): RequiredSupplementaryDocument;
+    }
+
+    class ProofOfAddressObjective extends Objective {
+        constructor();
+    }
+
+    class ProofOfAddressObjectiveBuilder {
+        build(): ProofOfAddressObjective;
+    }
+
+    /**
+     * The configuration applied when creating each RequestedSupplementaryDocTextExtraction
+     */
+    class RequestedSupplementaryDocTextExtractionConfig {
+        manualCheck: string;
+        /**
+         * @param manualCheck Describes the manual fallback behaviour applied to each Task
+         */
+        constructor(manualCheck: string);
+        /**
+         * @returns data for JSON.stringify()
+         */
+        toJSON(): {
+            manual_check: string;
+        };
+    }
+
+    /**
+     * Requests that a SupplementaryTextExtractionTask be applied to each Document
+     */
+    class RequestedSupplementaryDocTextExtractionTask extends RequestedTask {
+        constructor(config: RequestedSupplementaryDocTextExtractionConfig);
+    }
+
+    /**
+     * Builder to assist creation of {@link RequestedSupplementaryDocTextExtractionTask}.
+     */
+    class RequestedSupplementaryDocTextExtractionTaskBuilder extends BaseCheckBuilder {
+        /**
+         * Builds a {@link RequestedSupplementaryDocTextExtractionTask} using the values
+         * supplied to the builder
+         */
+        build(): RequestedSupplementaryDocTextExtractionTask;
+    }
+
+    /**
+     * The configuration applied when creating each TextExtractionTask
+     */
+    class RequestedTextExtractionConfig {
+        manualCheck: string;
+        chipData: string;
+        /**
+         * @param manualCheck Describes the manual fallback behaviour applied to each Task
+         * @param chipData Describes the chip data requirement for each Task
+         */
+        constructor(manualCheck: string, chipData: string);
+        /**
+         * @returns data for JSON.stringify()
+         */
+        toJSON(): {
+            manual_check: string;
+            chip_data: string;
+        };
+    }
+
+    /**
+     * Requests that a TextExtractionTask be applied to each Document
+     */
+    class RequestedTextExtractionTask extends RequestedTask {
+        constructor(config: RequestedTextExtractionConfig);
+    }
+
+    /**
+     * Builder to assist creation of {@link RequestedTextExtractionTask}.
+     */
+    class RequestedTextExtractionTaskBuilder extends BaseCheckBuilder {
+        chipData: string;
         withChipDataDesired(): this;
         withChipDataIgnore(): this;
+        /**
+         * Builds a {@link RequestedTextExtractionTask} using the values supplied to the builder
+         */
+        build(): RequestedTextExtractionTask;
     }
 
-    class RequestedSupplementaryDocTextExtractionTaskBuilder extends ManualCheckBuilder {}
-
-    class SdkConfigBuilder extends BaseBuilder {
-        withAllowsCameraAndUpload(): this;
-        withPrimaryColour(colour: string): this;
-        withSecondaryColour(colour: string): this;
-        withFontColour(colour: string): this;
-        withLocale(locale: string): this;
-        withPresetIssuingCountry(country: string): this;
-        withSuccessUrl(url: string): this;
-        withErrorUrl(url: string): this;
-    }
-
-    class NotificationConfigBuilder extends BaseBuilder {
-        withEndpoint(endpoint: string): this;
+    /**
+     * Builder to assist in the creation of {@link NotificationConfig}.
+     */
+    class NotificationConfigBuilder {
+        topics: string[];
+        authToken: string;
+        endpoint: string;
+        /**
+         * Setup default builder properties
+         */
+        constructor();
+        /**
+         * Sets the authorization token to be included in call-back messages
+         */
         withAuthToken(authToken: string): this;
+        /**
+         * Sets the endpoint that notifications should be sent to
+         */
+        withEndpoint(endpoint: string): this;
+        /**
+         * Adds RESOURCE_UPDATE to the list of topics that trigger notification messages
+         */
         forResourceUpdate(): this;
+        /**
+         * Adds TASK_COMPLETION to the list of topics that trigger notification messages
+         */
         forTaskCompletion(): this;
-        forSessionCompletion(): this;
+        /**
+         * Adds CHECK_COMPLETION to the list of topics that trigger notification messages
+         */
         forCheckCompletion(): this;
+        /**
+         * Adds SESSION_COMPLETION to the list of topics that trigger notification messages
+         */
+        forSessionCompletion(): this;
+        /**
+         * Adds a topic to the list of topics that trigger notification messages
+         */
+        withTopic(topicName: string): this;
+        /**
+         * Build the {@link NotificationConfig} using the supplied values
+         */
+        build(): NotificationConfig;
     }
 
-    class SessionSpecificationBuilder extends BaseBuilder {
-        withClientSessionTokenTtl(ttl: number): this;
-        withResourcesTtl(ttl: number): this;
-        withUserTrackingId(trackingId: string): this;
-        withRequiredDocument(document: RequiredIdDocumentBuilder | RequiredSupplementaryDocumentBuilder): this;
-        withRequestedCheck(check: any): this;
-        withRequestedTask(task: any): this;
-        withSdkConfig(config: SdkConfigBuilder): this;
-        withNotifications(config: NotificationConfigBuilder): this;
+    /**
+     * Builder to assist in the creation of {@link SdkConfig}.
+     */
+    class SdkConfigBuilder {
+        allowedCaptureMethods: string;
+        primaryColour: string;
+        secondaryColour: string;
+        fontColour: string;
+        locale: string;
+        presetIssuingCountry: string;
+        successUrl: string;
+        errorUrl: string;
+        privacyPolicyUrl: string;
+        /**
+         * Sets the allowed capture method to "CAMERA"
+         */
+        withAllowsCamera(): this;
+        /**
+         * Sets the allowed capture method to "CAMERA_AND_UPLOAD"
+         */
+        withAllowsCameraAndUpload(): this;
+        /**
+         * Sets the allowed capture method
+         *
+         * @param allowedCaptureMethod the allowed capture method
+         */
+        withAllowedCaptureMethods(allowedCaptureMethods: string): this;
+        /**
+         * Sets the primary colour to be used by the web/native client
+         *
+         * @param primaryColour The primary colour, hexadecimal value e.g. #ff0000
+         */
+        withPrimaryColour(primaryColour: string): this;
+        /**
+         * Sets the secondary colour to be used by the web/native client (used on the button)
+         *
+         * @param secondaryColour The secondary colour, hexadecimal value e.g. #ff0000
+         */
+        withSecondaryColour(secondaryColour: string): this;
+        /**
+         * Sets the font colour to be used by the web/native client (used on the button)
+         *
+         * @param fontColour The font colour
+         */
+        withFontColour(fontColour: string): this;
+        /**
+         * Sets the locale on the builder
+         *
+         * @param locale The locale, e.g. "en"
+         */
+        withLocale(locale: string): this;
+        /**
+         * Sets the preset issuing country on the builder
+         *
+         * @param presetIssuingCountry the preset issuing country
+         */
+        withPresetIssuingCountry(presetIssuingCountry: string): this;
+        /**
+         * Sets the success URL for the redirect that follows the web/native client
+         * uploading documents successfully
+         *
+         * @param successUrl the success URL
+         */
+        withSuccessUrl(successUrl: string): this;
+        /**
+         * Sets the error URL for the redirect that follows the web/native client
+         * uploading documents unsuccessfully
+         *
+         * @param errorUrl the error URL
+         */
+        withErrorUrl(errorUrl: string): this;
+        /**
+         * Sets the privacy policy URL
+         *
+         * @param privacyPolicyUrl the privacy policy URL
+         */
+        withPrivacyPolicyUrl(privacyPolicyUrl: string): this;
+        /**
+         * Builds the {@link SdkConfig} using the values supplied to the builder
+         */
+        build(): SdkConfig;
+    }
+
+    /**
+     * Builder to assist the creation of {@link SessionSpecification}.
+     */
+    class SessionSpecificationBuilder {
+        requestedChecks: any[];
+        requestedTasks: any[];
+        requiredDocuments: any[];
+        clientSessionTokenTtl: number;
+        resourcesTtl: number;
+        userTrackingId: string;
+        notifications: NotificationConfig;
+        sdkConfig: SdkConfig;
+        blockBiometricConsent: any;
+        constructor();
+        /**
+         * Sets the client session token TTL (time-to-live)
+         *
+         * @param clientSessionTokenTtl The client session token TTL
+         */
+        withClientSessionTokenTtl(clientSessionTokenTtl: number): this;
+        /**
+         * Sets the resources TTL (time-to-live)
+         *
+         * @param resourcesTtl The resources TTL
+         */
+        withResourcesTtl(resourcesTtl: number): this;
+        /**
+         * Sets the user tracking ID
+         *
+         * @param userTrackingId The user tracking ID
+         */
+        withUserTrackingId(userTrackingId: string): this;
+        /**
+         * Sets the {@link NotificationConfig}
+         */
+        withNotifications(notifications: NotificationConfig): this;
+        /**
+         * Adds a {@link RequestedCheck} to the list
+         */
+        withRequestedCheck(requestedCheck: RequestedCheck): this;
+        /**
+         * Adds a {@link RequestedTask} to the list
+         */
+        withRequestedTask(requestedTask: RequestedTask): this;
+        /**
+         * Sets the {@link SdkConfig}
+         */
+        withSdkConfig(sdkConfig: SdkConfig): this;
+        /**
+         * Adds a {@link RequiredDocument} to the list documents required from the client
+         */
+        withRequiredDocument(requiredDocument: RequiredDocument): this;
+        /**
+         * Sets whether or not to block the collection of biometric consent
+         */
         withBlockBiometricConsent(blockBiometricConsent: boolean): this;
+        /**
+         * Builds the {@link SessionSpecification} based on the values supplied to the builder
+         */
+        build(): SessionSpecification;
     }
 }
 
-export = DocScanCreate;
+export = Create;
